@@ -12,7 +12,7 @@ const server = http.createServer(app);
 const initializeDB = require("./InitialiseDb/index");
 const { PDFDocument } = require("pdf-lib");
 const { createCanvas } = require("canvas");
-const poppler = require("pdf-poppler");
+// const poppler = require("pdf-poppler");
 const { v4: uuidv4 } = require("uuid");
 
 const {
