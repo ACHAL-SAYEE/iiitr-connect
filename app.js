@@ -524,7 +524,7 @@ app.get("/api/status", authenticateToken, async (req, res) => {
   //   user = await Faculty.findOne({ email: req.email });
   // }
   user = await User.findOne({ email: req.email });
-  console.log(user);
+  console.log(user,req.email);
   if (user.firstName)
     return res.send({
       data: { ...user.toJSON() },
@@ -576,15 +576,15 @@ app.post(
   }
 );
 
-async function listFiles(directoryPath, directoryPath2) {
+async function listFiles(serverUrl,directoryPath, directoryPath2) {
   try {
     console.log("directoryPathrr ", directoryPath);
     let files = await fs.promises.readdir(directoryPath);
     files = files.map((file) => {
       // return { id: uuid };
-      let fullPath = `${req.serverUrl}${directoryPath2}/${file}`;
+      let fullPath = `${serverUrl}${directoryPath2}/${file}`;
       const normalizedPath = fullPath.replace(/\\/g, "/");
-      console.log("fullPath", normalizedPath);
+      console.log("fullPath123 ", normalizedPath);
       return normalizedPath;
     });
     console.log(files);
@@ -709,7 +709,7 @@ app.get("/api/posts", authenticateToken, async (req, res) => {
           __dirname,
           `/uploads/posts/${post.postId}`
         );
-        const files = await listFiles(
+        const files = await listFiles(req.serverUrl,
           directoryPath,
           `/uploads/posts/${post.postId}`
         );
@@ -720,6 +720,7 @@ app.get("/api/posts", authenticateToken, async (req, res) => {
         console.log("isLiked ", isLiked);
         if (isLiked) isLiked = true;
         else isLiked = false;
+        console.log("filegrgs ",files)
         return { ...post, files, isLiked };
       })
     );
