@@ -582,7 +582,7 @@ async function listFiles(directoryPath, directoryPath2) {
     let files = await fs.promises.readdir(directoryPath);
     files = files.map((file) => {
       // return { id: uuid };
-      let fullPath = `http://localhost:3009${directoryPath2}/${file}`;
+      let fullPath = `${req.serverUrl}${directoryPath2}/${file}`;
       const normalizedPath = fullPath.replace(/\\/g, "/");
       console.log("fullPath", normalizedPath);
       return normalizedPath;
@@ -600,7 +600,8 @@ async function listFiles(directoryPath, directoryPath2) {
 app.get("/api/posts", authenticateToken, async (req, res) => {
   try {
     console.log("req.userId", req.userId);
-
+    const fullUrl = `${req.protocol}://${req.get("host")}`;
+    req.serverUrl = fullUrl;
     // let posts = await Post.find({});
     let posts = await Post.aggregate([
       {
@@ -1160,6 +1161,8 @@ const generateRandomToken = () => {
 app.post("/api/classroom/invite", authenticateToken, async (req, res) => {
   try {
     console.log("hit");
+    const fullUrl = `${req.protocol}://${req.get("host")}`;
+    req.serverUrl = fullUrl;
     const { emails, classroom } = req.body;
     console.log(" emails, classroom", emails, classroom);
     const classh = await ClassRoom.findById(classroom);
@@ -1171,7 +1174,7 @@ app.post("/api/classroom/invite", authenticateToken, async (req, res) => {
       from: "Sattakingspinner@gmail.com",
       to: emails[0],
       subject: "invitation to join classroom",
-      text: `http://localhost:3000/invite/accept_token/${token} is your link to join classroom ${classh.className}`,
+      text: `${req.serverUrl}/invite/accept_token/${token} is your link to join classroom ${classh.className}`,
     };
 
     transporter.sendMail(mailOptions, async (error, info) => {
@@ -1454,8 +1457,10 @@ function getAllFilesInFolder(folderPath) {
     console.log("folderPath", path.join(__dirname, folderPath));
     const files = fs.readdirSync(path.join(__dirname, folderPath)); // Read all files and folders in the directory
     console.log(files);
+    const fullUrl = `${req.protocol}://${req.get("host")}`;
+
     const fileList = files.map((file) => {
-      let fullPath = `http://localhost:3009${folderPath}/${file}`;
+      let fullPath = `${fullUrl}${folderPath}/${file}`;
       let normalizedPath = fullPath.replace(/\\/g, "/");
       normalizedPath = normalizedPath.replace(".", "");
       // let fullPath = path.join(__dirname, folderPath, file);
@@ -1878,10 +1883,10 @@ app.get("/api/assignments", authenticateToken, async (req, res) => {
     res.status(500).send(e);
   }
 });
-app.use(express.static(path.join(__dirname, 'dist')));
+app.use(express.static(path.join(__dirname, "dist")));
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
